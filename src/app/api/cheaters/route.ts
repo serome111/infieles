@@ -3,7 +3,7 @@ import { prisma } from '@/lib/prisma';
 
 // Simple in-memory rate limiter
 const rateLimitMap = new Map<string, number>();
-const RATE_LIMIT_WINDOW = 3 * 60 * 1000; // 3 minutes
+const RATE_LIMIT_WINDOW = 60 * 1000; // 1 minute
 
 // Helper to clean social network URLs/handles
 const cleanSocialNetwork = (input: string): string => {
@@ -31,12 +31,14 @@ const sanitize = (str: string) => {
 export async function POST(request: Request) {
     try {
         // Rate Limiting
-        const ip = request.headers.get('x-forwarded-for') || 'unknown';
+        const forwardedFor = request.headers.get('x-forwarded-for');
+        const ip = forwardedFor ? forwardedFor.split(',')[0].trim() : 'unknown';
         const lastRequest = rateLimitMap.get(ip);
 
         if (lastRequest && Date.now() - lastRequest < RATE_LIMIT_WINDOW) {
+            const timeLeft = Math.ceil((RATE_LIMIT_WINDOW - (Date.now() - lastRequest)) / 1000);
             return NextResponse.json(
-                { error: 'Please wait 5 seconds before posting again.' },
+                { error: `Por favor espera ${timeLeft} segundos antes de enviar otro registro.` },
                 { status: 429 }
             );
         }
@@ -78,6 +80,7 @@ export async function POST(request: Request) {
                 title: sanitizedData.title,
                 name: sanitizedData.name,
                 gender: body.gender,
+                role: body.role || 'infiel', // Default to 'infiel'
                 description: sanitizedData.description,
                 characterDescription: sanitizedData.characterDescription,
                 age: parseInt(body.age),

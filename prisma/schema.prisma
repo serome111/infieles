@@ -1,5 +1,6 @@
 generator client {
   provider = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
 }
 
 datasource db {
@@ -12,6 +13,7 @@ model Cheater {
   title           String
   name            String
   gender          String   // "Hombre" or "Mujer"
+  role            String   @default("infiel") // "infiel", "migajero", etc.
   description     String
   characterDescription String? // Description of the person involved
 

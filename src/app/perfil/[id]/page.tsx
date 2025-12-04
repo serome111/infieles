@@ -11,6 +11,7 @@ interface Cheater {
     title: string;
     name: string;
     gender: string;
+    role: string;
     description: string;
     characterDescription: string;
     age: number;
@@ -161,7 +162,12 @@ export default function ProfilePage() {
                     <div className="inline-block p-4 rounded-full bg-red-500/10 mb-4 border border-red-500/20">
                         <AlertTriangle className="h-12 w-12 text-red-500" />
                     </div>
-                    <h1 className="text-4xl md:text-5xl font-bold text-white mb-2 capitalize break-words">{cheater.name}</h1>
+                    <div className="flex items-center justify-center gap-3 mb-2">
+                        <h1 className="text-4xl md:text-5xl font-bold text-white capitalize break-words">{cheater.name}</h1>
+                        <span className={`px-3 py-1 rounded-full text-sm font-bold border ${cheater.role === 'migajero' ? 'bg-yellow-500/20 text-yellow-500 border-yellow-500/30' : 'bg-red-500/20 text-red-500 border-red-500/30'}`}>
+                            {cheater.role === 'migajero' ? 'Migajero' : 'Infiel'}
+                        </span>
+                    </div>
                     <p className="text-slate-400 flex items-center justify-center gap-2">
                         <MapPin className="h-4 w-4" />
                         {cheater.locationCity}, {cheater.locationCountry}

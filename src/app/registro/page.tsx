@@ -23,6 +23,7 @@ export default function RegistroPage() {
         title: '',
         name: '',
         gender: 'Hombre',
+        role: 'infiel',
         description: '',
         characterDescription: '',
         age: '',
@@ -201,6 +202,7 @@ export default function RegistroPage() {
                     title: '',
                     name: '',
                     gender: 'Hombre',
+                    role: 'infiel',
                     description: '',
                     characterDescription: '',
                     age: '',
@@ -252,6 +254,21 @@ export default function RegistroPage() {
 
                 <form onSubmit={handleSubmit} className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="col-span-1 md:col-span-2">
+                            <label className="block text-sm font-medium text-slate-400 mb-1">
+                                Tipo de Registro
+                            </label>
+                            <select
+                                name="role"
+                                value={formData.role}
+                                onChange={handleChange}
+                                className="w-full bg-slate-950 border border-slate-700 rounded-md px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-red-500"
+                            >
+                                <option value="infiel">Infiel</option>
+                                <option value="migajero">Migajero</option>
+                            </select>
+                        </div>
+
                         <div className="col-span-1 md:col-span-2">
                             <label className="block text-sm font-medium text-slate-400 mb-1">Título de la Anécdota *</label>
                             <input

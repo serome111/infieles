@@ -13,6 +13,7 @@ interface Cheater {
     title: string;
     name: string;
     gender: string;
+    role: string;
     description: string;
     age: number;
     occupation: string;
@@ -296,7 +297,12 @@ export default function ConsultarPage() {
                                                 {cheater.gender}
                                             </span>
                                         </h3>
-                                        <p className="text-red-400 font-medium mt-1">{cheater.name}</p>
+                                        <p className="text-red-400 font-medium mt-1 flex items-center gap-2">
+                                            {cheater.name}
+                                            <span className={`text-xs px-2 py-0.5 rounded-full border ${cheater.role === 'migajero' ? 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20' : 'bg-red-500/10 text-red-500 border-red-500/20'}`}>
+                                                {cheater.role === 'migajero' ? 'Migajero' : 'Infiel'}
+                                            </span>
+                                        </p>
                                         {cheater.socialNetworks && (
                                             <div className="mt-2 flex flex-wrap gap-2">
                                                 {cheater.socialNetworks.split(',').map((network, index) => (
