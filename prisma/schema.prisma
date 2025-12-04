@@ -1,0 +1,31 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Cheater {
+  id              Int      @id @default(autoincrement())
+  title           String
+  name            String
+  gender          String   // "Hombre" or "Mujer"
+  description     String
+  characterDescription String? // Description of the person involved
+
+  // department      String   // Removed in favor of locationState
+  age             Int      // Invented age
+  occupation      String   // Invented occupation
+  infidelityPeriod String  // Invented period
+  date            DateTime @default(now())
+  additionalData  String?  // Invented additional data
+  proofLinks      String?  // Fictional proof links
+  socialNetworks  String?
+  locationCountry String?
+  locationState   String?  // Department/State
+  locationCity    String?
+  isActive        Boolean  @default(true)
+  createdAt       DateTime @default(now())
+}
