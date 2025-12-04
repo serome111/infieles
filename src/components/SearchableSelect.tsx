@@ -14,9 +14,11 @@ interface SearchableSelectProps {
     onChange: (value: string) => void;
     placeholder: string;
     disabled?: boolean;
+    label?: string;
+    icon?: React.ReactNode;
 }
 
-export default function SearchableSelect({ options, value, onChange, placeholder, disabled = false }: SearchableSelectProps) {
+export default function SearchableSelect({ options, value, onChange, placeholder, disabled = false, label, icon }: SearchableSelectProps) {
     const [isOpen, setIsOpen] = useState(false);
     const [search, setSearch] = useState('');
     const wrapperRef = useRef<HTMLDivElement>(null);
@@ -39,14 +41,22 @@ export default function SearchableSelect({ options, value, onChange, placeholder
 
     return (
         <div className="relative" ref={wrapperRef}>
+            {label && (
+                <label className="block text-sm font-medium text-slate-300 mb-2">
+                    {label}
+                </label>
+            )}
             <div
                 onClick={() => !disabled && setIsOpen(!isOpen)}
-                className={`w-full bg-slate-950 border border-slate-700 rounded-md px-4 py-2 text-white flex items-center justify-between cursor-pointer ${disabled ? 'opacity-50 cursor-not-allowed' : 'hover:border-slate-600'}`}
+                className={`w-full bg-slate-950 border border-slate-700 rounded-md px-4 py-3 text-white flex items-center justify-between cursor-pointer transition-colors ${disabled ? 'opacity-50 cursor-not-allowed' : 'hover:border-slate-500'}`}
             >
-                <span className={selectedOption ? 'text-white' : 'text-slate-500'}>
-                    {selectedOption ? selectedOption.label : placeholder}
-                </span>
-                <ChevronDown className="h-4 w-4 text-slate-400" />
+                <div className="flex items-center gap-3 overflow-hidden">
+                    {icon && <span className="flex-shrink-0 text-slate-400">{icon}</span>}
+                    <span className={`truncate ${selectedOption ? 'text-white' : 'text-slate-500'}`}>
+                        {selectedOption ? selectedOption.label : placeholder}
+                    </span>
+                </div>
+                <ChevronDown className={`h-4 w-4 text-slate-400 transition-transform duration-200 flex-shrink-0 ${isOpen ? 'rotate-180' : ''}`} />
             </div>
 
             {isOpen && !disabled && (

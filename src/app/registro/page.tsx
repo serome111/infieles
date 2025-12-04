@@ -184,14 +184,8 @@ export default function RegistroPage() {
 
         setIsSubmitting(true);
         try {
-            // Get full names for country and state instead of codes
-            const countryName = Country.getCountryByCode(formData.locationCountry)?.name || formData.locationCountry;
-            const stateName = State.getStateByCodeAndCountry(formData.locationState, formData.locationCountry)?.name || formData.locationState;
-
             const submissionData = {
                 ...formData,
-                locationCountry: countryName,
-                locationState: stateName
             };
 
             const response = await fetch('/api/cheaters', {

@@ -20,6 +20,5 @@ rad.json
 *.flf
 #Test results file
 TestResults.xml
-
-.dockerignore
+.DS_Store
 .env

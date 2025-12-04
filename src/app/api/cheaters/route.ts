@@ -5,6 +5,29 @@ import { prisma } from '@/lib/prisma';
 const rateLimitMap = new Map<string, number>();
 const RATE_LIMIT_WINDOW = 3 * 60 * 1000; // 3 minutes
 
+// Helper to clean social network URLs/handles
+const cleanSocialNetwork = (input: string): string => {
+    if (!input) return '';
+    let cleaned = input.toLowerCase().trim();
+
+    // Remove protocol and www
+    cleaned = cleaned.replace(/https?:\/\/(www\.)?/, '');
+
+    // Remove trailing slash
+    cleaned = cleaned.replace(/\/$/, '');
+
+    // Remove query parameters
+    cleaned = cleaned.split('?')[0];
+
+    return cleaned;
+};
+
+// Helper to sanitize input (strip HTML tags)
+const sanitize = (str: string) => {
+    if (!str) return '';
+    return str.replace(/<[^>]*>/g, '');
+};
+
 export async function POST(request: Request) {
     try {
         // Rate Limiting
@@ -13,7 +36,7 @@ export async function POST(request: Request) {
 
         if (lastRequest && Date.now() - lastRequest < RATE_LIMIT_WINDOW) {
             return NextResponse.json(
-                { error: 'Rate limit exceeded. Please wait 3 minutes.' },
+                { error: 'Please wait 5 seconds before posting again.' },
                 { status: 429 }
             );
         }
@@ -30,23 +53,43 @@ export async function POST(request: Request) {
             );
         }
 
+        // Normalize social networks
+        let normalizedSocials = body.socialNetworks;
+        if (normalizedSocials) {
+            normalizedSocials = normalizedSocials
+                .split(',')
+                .map((s: string) => cleanSocialNetwork(sanitize(s)))
+                .join(',');
+        }
+
+        // Sanitize inputs
+        const sanitizedData = {
+            name: sanitize(body.name).toLowerCase(),
+            title: sanitize(body.title),
+            description: sanitize(body.description),
+            characterDescription: sanitize(body.characterDescription),
+            occupation: sanitize(body.occupation),
+            additionalData: sanitize(body.additionalData),
+            proofLinks: body.proofLinks ? sanitize(body.proofLinks) : null,
+        };
+
         const cheater = await prisma.cheater.create({
             data: {
-                title: body.title,
-                name: body.name,
+                title: sanitizedData.title,
+                name: sanitizedData.name,
                 gender: body.gender,
-                description: body.description,
-                characterDescription: body.characterDescription,
+                description: sanitizedData.description,
+                characterDescription: sanitizedData.characterDescription,
                 age: parseInt(body.age),
-                occupation: body.occupation,
+                occupation: sanitizedData.occupation,
                 infidelityPeriod: body.infidelityPeriod,
                 date: new Date(),
                 locationCountry: body.locationCountry,
                 locationState: body.locationState,
                 locationCity: body.locationCity,
-                socialNetworks: body.socialNetworks,
-                proofLinks: body.proofLinks,
-                additionalData: body.additionalData,
+                socialNetworks: normalizedSocials,
+                proofLinks: sanitizedData.proofLinks,
+                additionalData: sanitizedData.additionalData,
                 isActive: true
             },
         });
@@ -61,9 +104,43 @@ export async function POST(request: Request) {
     }
 }
 
-export async function GET() {
+export async function GET(request: Request) {
+    const { searchParams } = new URL(request.url);
+    const country = searchParams.get('country');
+    const state = searchParams.get('state');
+    const city = searchParams.get('city');
+    const keyword = searchParams.get('keyword');
+    const socialsParam = searchParams.get('socials');
+
     try {
+        const where: any = {
+            isActive: true, // Always filter by active
+        };
+
+        if (country) where.locationCountry = country;
+        if (state) where.locationState = state;
+        if (city) where.locationCity = city;
+
+        const orConditions: any[] = [];
+
+        if (keyword) {
+            orConditions.push({ name: { contains: keyword, mode: 'insensitive' } });
+            orConditions.push({ socialNetworks: { contains: keyword, mode: 'insensitive' } });
+        }
+
+        if (socialsParam) {
+            const socials = socialsParam.split(',').filter(Boolean);
+            socials.forEach(social => {
+                orConditions.push({ socialNetworks: { contains: social, mode: 'insensitive' } });
+            });
+        }
+
+        if (orConditions.length > 0) {
+            where.OR = orConditions;
+        }
+
         const cheaters = await prisma.cheater.findMany({
+            where,
             orderBy: {
                 createdAt: 'desc',
             },
