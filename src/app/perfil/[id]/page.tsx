@@ -17,6 +17,7 @@ interface Cheater {
     age: number;
     occupation: string;
     infidelityPeriod: string;
+    date: string;
     locationCountry: string;
     locationState: string;
     locationCity: string;
@@ -75,7 +76,7 @@ export default function ProfilePage() {
                 const relatedRes = await fetch(`/api/cheaters?${searchParams.toString()}`);
                 if (relatedRes.ok) {
                     const relatedData: Cheater[] = await relatedRes.json();
-                    setRelated(relatedData);
+                    setRelated(relatedData.filter(item => item.id !== data.id));
                 }
 
             } catch (error) {
@@ -170,7 +171,7 @@ export default function ProfilePage() {
                     </div>
                     <p className="text-slate-400 flex items-center justify-center gap-2">
                         <MapPin className="h-4 w-4" />
-                        {cheater.locationCity}, {cheater.locationCountry}
+                        {cheater.locationCity}, {cheater.locationState}, {cheater.locationCountry}
                     </p>
                 </div>
 
@@ -205,6 +206,15 @@ export default function ProfilePage() {
                                 Tiempo de Infidelidad
                             </h3>
                             <p className="text-slate-300">{cheater.infidelityPeriod}</p>
+                        </div>
+
+                        {/* Event Date */}
+                        <div className="bg-slate-900/50 p-6 rounded-2xl border border-slate-800 backdrop-blur-sm">
+                            <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                                <Calendar className="h-5 w-5 text-red-500" />
+                                Fecha del Suceso
+                            </h3>
+                            <p className="text-slate-300">{new Date(cheater.date).toLocaleDateString()}</p>
                         </div>
 
                         {/* Social Networks */}
@@ -244,6 +254,7 @@ export default function ProfilePage() {
                                 <FileText className="h-6 w-6 text-red-500" />
                                 Historia Principal
                             </h3>
+                            <h2 className="text-2xl font-bold text-white mb-6">{cheater.title}</h2>
                             <div className="prose prose-invert max-w-none">
                                 <p className="text-slate-300 leading-relaxed whitespace-pre-wrap">
                                     {cheater.description}
